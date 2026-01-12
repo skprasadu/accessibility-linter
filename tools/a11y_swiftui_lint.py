@@ -67,6 +67,7 @@ def iter_swift_files(root: Path) -> List[Path]:
 def find_issues_in_file(path: Path) -> List[Issue]:
     lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
     issues: List[Issue] = []
+    seen = set()  # <--- ADD THIS
 
     # Heuristic:
     # For each line that contains "Button", look at a small window after it.
@@ -98,13 +99,17 @@ def find_issues_in_file(path: Path) -> List[Issue]:
                 image_line_idx = j
                 break
 
-        if image_line_idx is None:
-            continue
-
         msg = (
             f"Add .accessibilityLabel(\"{suggested}\") so VoiceOver/TalkBack "
             "announce what this icon button does."
         )
+        if image_line_idx is None:
+            continue
+
+        key = (str(path.as_posix()), image_line_idx + 1, symbol, RULE_ID)
+        if key in seen:
+            continue
+        seen.add(key)
         issues.append(Issue(
             rule=RULE_ID,
             title=RULE_TITLE,
@@ -238,7 +243,11 @@ def main() -> int:
 
     all_issues: List[Issue] = []
     for f in iter_swift_files(root):
-        all_issues.extend(find_issues_in_file(f))
+        file_issues = find_issues_in_file(f)
+        # rewrite issue paths to be repo-relative
+        for iss in file_issues:
+            iss.path = str(Path(iss.path).resolve().relative_to(root))
+        all_issues.extend(file_issues)
 
     if getattr(args, "github_annotations", False):
         emit_github_annotations(all_issues)
