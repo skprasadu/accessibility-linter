@@ -26,10 +26,25 @@ jobs:
       - name: Build/Test (optional)
         continue-on-error: true
         run: |
-          xcodebuild -version
+          # Prove the project exists where we think it does
+          ls -la TestPipeline
+          find TestPipeline -maxdepth 2 -name "*.xcodeproj" -print
+
+          # List schemes (debug)
+          xcodebuild -list -project TestPipeline/TestPipeline.xcodeproj
+
+          # Run tests
           xcodebuild test \
-            -scheme "A11yDemo" \
-            -destination "platform=iOS Simulator,name=iPhone 15"
+            -project TestPipeline/TestPipeline.xcodeproj \
+            -scheme "TestPipeline" \
+            -destination "platform=iOS Simulator,name=iPhone 15" \
+            -sdk iphonesimulator
+      - name: Debug - list swift files
+        run: |
+          echo "Repo root:"
+          ls -la
+          echo "Swift files found:"
+          find . -name "*.swift" | sort | head -n 200
 
       - name: Run a11y lint
         id: a11y
