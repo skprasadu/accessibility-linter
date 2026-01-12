@@ -23,8 +23,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      # Optional: prove the scheme builds/tests on CI.
-      # This can fail if the scheme isn't shared or destination doesn't exist on runner.
       - name: Build/Test (optional)
         continue-on-error: true
         run: |
@@ -43,11 +41,7 @@ jobs:
             --json out/a11y_report.json \
             --github-annotations
 
-          COUNT=$(python3 - <<'PY'
-import json
-print(json.load(open("out/a11y_report.json"))["count"])
-PY
-          )
+          COUNT=$(python3 -c 'import json; print(json.load(open("out/a11y_report.json"))["count"])')
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
 
       - name: Find existing bot comment
