@@ -14,37 +14,13 @@ permissions:
 
 jobs:
   lint:
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
-      - name: Build/Test (optional)
-        continue-on-error: true
-        run: |
-          # Prove the project exists where we think it does
-          ls -la TestPipeline
-          find TestPipeline -maxdepth 2 -name "*.xcodeproj" -print
-
-          # List schemes (debug)
-          xcodebuild -list -project TestPipeline/TestPipeline.xcodeproj
-
-          # Run tests
-          xcodebuild test \
-            -project TestPipeline/TestPipeline.xcodeproj \
-            -scheme "TestPipeline" \
-            -destination "platform=iOS Simulator,name=iPhone 15" \
-            -sdk iphonesimulator
-      - name: Debug - list swift files
-        run: |
-          echo "Repo root:"
-          ls -la
-          echo "Swift files found:"
-          find . -name "*.swift" | sort | head -n 200
 
       - name: Run a11y lint
         id: a11y
