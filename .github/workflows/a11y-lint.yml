@@ -4,8 +4,6 @@ on:
   pull_request:
     paths:
       - "**/*.swift"
-      - "tools/**"
-      - ".github/workflows/a11y-*.yml"
 
 permissions:
   contents: read
@@ -14,65 +12,12 @@ permissions:
 
 jobs:
   lint:
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: skprasadu/swiftui-a11y-lint@v1
         with:
-          python-version: "3.11"
-
-      - name: Build/Test (optional)
-        continue-on-error: true
-        run: |
-          # Prove the project exists where we think it does
-          ls -la TestPipeline
-          find TestPipeline -maxdepth 2 -name "*.xcodeproj" -print
-
-          # List schemes (debug)
-          xcodebuild -list -project TestPipeline/TestPipeline.xcodeproj
-
-          # Run tests
-          xcodebuild test \
-            -project TestPipeline/TestPipeline.xcodeproj \
-            -scheme "TestPipeline" \
-            -destination "platform=iOS Simulator,name=iPhone 15" \
-            -sdk iphonesimulator
-      - name: Debug - list swift files
-        run: |
-          echo "Repo root:"
-          ls -la
-          echo "Swift files found:"
-          find . -name "*.swift" | sort | head -n 200
-
-      - name: Run a11y lint
-        id: a11y
-        run: |
-          mkdir -p out
-          python3 tools/a11y_swiftui_lint.py lint \
-            --root . \
-            --report out/a11y_report.md \
-            --json out/a11y_report.json \
-            --github-annotations
-
-          COUNT=$(python3 -c 'import json; print(json.load(open("out/a11y_report.json"))["count"])')
-          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-
-      - name: Find existing bot comment
-        uses: peter-evans/find-comment@v4
-        id: fc
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body-includes: "<!-- a11y-bot -->"
-
-      - name: Create or update PR comment
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body-path: out/a11y_report.md
-
-      - name: Fail PR if issues found
-        if: ${{ steps.a11y.outputs.count != '0' }}
-        run: exit 1
+          root: "."
+          comment: "true"
+          fail_on_issues: "true"
