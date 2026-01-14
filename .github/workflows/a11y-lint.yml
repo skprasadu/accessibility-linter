@@ -4,8 +4,6 @@ on:
   pull_request:
     paths:
       - "**/*.swift"
-      - "tools/**"
-      - ".github/workflows/a11y-*.yml"
 
 permissions:
   contents: read
@@ -18,37 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - uses: skprasadu/swiftui-a11y-lint@v1
         with:
-          python-version: "3.11"
-
-      - name: Run a11y lint
-        id: a11y
-        run: |
-          mkdir -p out
-          python3 tools/a11y_swiftui_lint.py lint \
-            --root . \
-            --report out/a11y_report.md \
-            --json out/a11y_report.json \
-            --github-annotations
-
-          COUNT=$(python3 -c 'import json; print(json.load(open("out/a11y_report.json"))["count"])')
-          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-
-      - name: Find existing bot comment
-        uses: peter-evans/find-comment@v4
-        id: fc
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body-includes: "<!-- a11y-bot -->"
-
-      - name: Create or update PR comment
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body-path: out/a11y_report.md
-
-      - name: Fail PR if issues found
-        if: ${{ steps.a11y.outputs.count != '0' }}
-        run: exit 1
+          root: "."
+          comment: "true"
+          fail_on_issues: "true"
