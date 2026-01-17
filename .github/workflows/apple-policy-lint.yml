@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: skprasadu/swiftui-a11y-lint/policy@v2.0.1
+      - uses: skprasadu/swiftui-a11y-lint/policy@v2.0.2
         with:
           root: "."
           comment: "true"
