@@ -9,6 +9,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  issues: write
 
 jobs:
   policy:
@@ -16,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: skprasadu/swiftui-a11y-lint/policy@main
+      - uses: skprasadu/swiftui-a11y-lint/policy@v2.0.1
         with:
           root: "."
           comment: "true"
