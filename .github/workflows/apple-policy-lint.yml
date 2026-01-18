@@ -17,10 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: skprasadu/apple-policy-lint@v0.1.1
+      - uses: skprasadu/apple-policy-lint@v0.1.2
         with:
           root: "."
           comment: "true"
           fail_on_issues: "true"
           github_annotations: "true"
-          engine_version: "v0.1.1"
