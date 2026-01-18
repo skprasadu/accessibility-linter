@@ -23,3 +23,4 @@ jobs:
           comment: "true"
           fail_on_issues: "true"
           github_annotations: "true"
+          engine_version: "v0.1.2"
